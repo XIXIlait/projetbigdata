@@ -41,8 +41,8 @@ def generate_sensor_event():
 
 def main():
     """Envoie des événements dans Kafka toutes les 2 secondes."""
-    print(f"🚀 Producteur démarré. Envoi vers Kafka ({KAFKA_BROKER})...")
-    print(f"📍 Topic : {KAFKA_TOPIC}\n")
+    print(f"Producteur démarré. Envoi vers Kafka ({KAFKA_BROKER})...")
+    print(f"Topic : {KAFKA_TOPIC}\n")
     
     try:
         count = 0
@@ -52,12 +52,12 @@ def main():
             producer.send(KAFKA_TOPIC, value=event)
             
             count += 1
-            print(f"[{count}] 📤 Événement envoyé : {event['room']} - {event['sensor_type']} = {event['value']}")
+            print(f"[{count}] Événement envoyé : {event['room']} - {event['sensor_type']} = {event['value']}")
             
             time.sleep(2)
     
     except KeyboardInterrupt:
-        print("\n⏹️  Producteur arrêté.")
+        print("\nProducteur arrêté.")
     finally:
         producer.close()
 

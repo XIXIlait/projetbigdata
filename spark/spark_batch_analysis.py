@@ -35,8 +35,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(f"{OUTPUT_DIR}/stats", exist_ok=True)
 os.makedirs(f"{OUTPUT_DIR}/anomalies", exist_ok=True)
 
-print(f"📁 Lecture des données depuis : {INPUT_DIR}")
-print(f"📁 Écriture des résultats dans : {OUTPUT_DIR}\n")
+print(f"Lecture des données depuis : {INPUT_DIR}")
+print(f"Écriture des résultats dans : {OUTPUT_DIR}\n")
 
 try:
     iteration = 0
@@ -51,11 +51,11 @@ try:
         files = [f for f in os.listdir(INPUT_DIR) if f.endswith('.json')]
         
         if not files:
-            print("⏳ En attente de nouvelles données...")
+            print("En attente de nouvelles données...")
             time.sleep(10)
             continue
         
-        print(f"📖 {len(files)} fichier(s) de données trouvé(s)")
+        print(f"{len(files)} fichier(s) de données trouvé(s)")
         
         # Lire les données JSON
         df = spark.read \
@@ -66,15 +66,15 @@ try:
         df = df.withColumn("timestamp_parsed", to_timestamp("timestamp"))
         
         total_events = df.count()
-        print(f"📊 Total d'événements : {total_events}")
+        print(f"Total d'événements : {total_events}")
         
         if total_events == 0:
-            print("⚠️  Aucun événement à traiter")
+            print("Aucun événement à traiter")
             time.sleep(10)
             continue
         
         # ANALYSE 1 : Statistiques par pièce et type de capteur
-        print("\n📈 STATISTIQUES PAR PIÈCE ET CAPTEUR:")
+        print("\nSTATISTIQUES PAR PIÈCE ET CAPTEUR:")
         stats_by_room = df \
             .filter(col("sensor_type").isin("temperature", "humidity")) \
             .groupBy("room", "sensor_type") \
@@ -130,10 +130,10 @@ try:
         anomaly_count = anomalies_detected.count()
         
         if anomaly_count > 0:
-            print(f"⚠️  {anomaly_count} ANOMALIE(S) DÉTECTÉE(S) !")
+            print(f"{anomaly_count} ANOMALIE(S) DÉTECTÉE(S) !")
             anomalies_detected.show(truncate=False)
         else:
-            print("✅ Aucune anomalie détectée")
+            print("Aucune anomalie détectée")
         
         # Sauvegarder les anomalies
         anomalies.write \
@@ -141,13 +141,13 @@ try:
             .option("header", "true") \
             .csv(f"{OUTPUT_DIR}/anomalies")
         
-        print(f"💾 Anomalies sauvegardées dans {OUTPUT_DIR}/anomalies/")
+        print(f"Anomalies sauvegardées dans {OUTPUT_DIR}/anomalies/")
         
         # ANALYSE 3 : Distribution des événements
-        print("\n📊 DISTRIBUTION DES ÉVÉNEMENTS PAR TYPE:")
+        print("\nDISTRIBUTION DES ÉVÉNEMENTS PAR TYPE:")
         df.groupBy("sensor_type").count().orderBy(col("count").desc()).show()
         
-        print("\n📊 DISTRIBUTION DES ÉVÉNEMENTS PAR PIÈCE:")
+        print("\nDISTRIBUTION DES ÉVÉNEMENTS PAR PIÈCE:")
         df.groupBy("room").count().orderBy(col("count").desc()).show()
         
         # Archiver les fichiers traités
@@ -160,18 +160,18 @@ try:
             if os.path.exists(src):
                 os.rename(src, dst)
         
-        print(f"\n📦 {len(files)} fichier(s) archivé(s) dans {archive_dir}/")
+        print(f"\n{len(files)} fichier(s) archivé(s) dans {archive_dir}/")
         
-        print(f"\n⏳ Prochaine analyse dans 15 secondes...")
+        print(f"\nProchaine analyse dans 15 secondes...")
         time.sleep(15)
 
 except KeyboardInterrupt:
-    print("\n\n⏹️  Analyse Spark arrêtée.")
-    print("📊 Résultats finaux disponibles dans :")
+    print("\n\nAnalyse Spark arrêtée.")
+    print("Résultats finaux disponibles dans :")
     print(f"   - {OUTPUT_DIR}/stats/")
     print(f"   - {OUTPUT_DIR}/anomalies/")
 
 finally:
     spark.stop()
-    print("\n✅ Session Spark terminée")
+    print("\nSession Spark terminée")
 

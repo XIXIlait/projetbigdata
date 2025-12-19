@@ -39,8 +39,8 @@ def main():
     # Créer le dossier de sortie s'il n'existe pas
     Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
     
-    print(f"🚀 Producteur démarré. Génération de flux de données...")
-    print(f"📁 Destination : {OUTPUT_DIR}\n")
+    print(f"Producteur démarré. Génération de flux de données...")
+    print(f"Destination : {OUTPUT_DIR}\n")
     
     try:
         count = 0
@@ -51,7 +51,7 @@ def main():
             batch_events.append(event)
             
             count += 1
-            print(f"[{count}] 📤 Événement généré : {event['room']} - {event['sensor_type']} = {event['value']}")
+            print(f"[{count}] Événement généré : {event['room']} - {event['sensor_type']} = {event['value']}")
             
             # Écrire un batch toutes les 10 secondes
             if count % 5 == 0:
@@ -62,7 +62,7 @@ def main():
                     for evt in batch_events:
                         f.write(json.dumps(evt) + '\n')
                 
-                print(f"💾 Batch de {len(batch_events)} événements sauvegardé : {filename}\n")
+                print(f"Batch de {len(batch_events)} événements sauvegardé : {filename}\n")
                 batch_events = []
             
             time.sleep(2)
@@ -77,9 +77,9 @@ def main():
                 for evt in batch_events:
                     f.write(json.dumps(evt) + '\n')
             
-            print(f"\n💾 Derniers événements sauvegardés : {filename}")
+            print(f"\n Derniers événements sauvegardés : {filename}")
         
-        print("\n⏹️  Producteur arrêté.")
+        print("\n Producteur arrêté.")
 
 if __name__ == "__main__":
     main()

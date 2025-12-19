@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "⚡ Démarrage du job Spark Streaming..."
-echo "⏳ Attente que Kafka soit prêt (20 secondes)..."
+echo "Démarrage du job Spark Streaming..."
+echo "Attente que Kafka soit prêt (20 secondes)..."
 sleep 20
 
 cd /spark
