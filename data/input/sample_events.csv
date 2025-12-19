@@ -1,8 +1,0 @@
-room,sensor_type,value,timestamp,device_id
-living_room,temperature,22.5,2025-12-16T12:00:00,living_room_temperature_001
-bedroom,humidity,55.0,2025-12-16T12:00:01,bedroom_humidity_001
-kitchen,presence,1,2025-12-16T12:00:02,kitchen_presence_001
-bathroom,light,0,2025-12-16T12:00:03,bathroom_light_001
-living_room,temperature,23.1,2025-12-16T12:00:04,living_room_temperature_001
-bedroom,humidity,54.5,2025-12-16T12:00:05,bedroom_humidity_001
-
