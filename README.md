@@ -217,6 +217,6 @@ We certify that this project respects Option A at 100%:
 **Non.** It is often a headache on Windows, but here, thanks to **Docker**, Spark runs in a **Linux** container. It therefore does not need this Windows patch (`winutils.exe` or `hadoop.dll`). It is one of the great advantages of our containerized architecture: it is clean and portable.
 
 ---
-**Authors:** Big Data Students
+**Authors:** Alexis & Rodin 
 **Date:** 19/12/2025
 **Technos:** Python, Kafka, Spark Structured Streaming, Docker.
