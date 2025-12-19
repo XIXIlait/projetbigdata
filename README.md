@@ -1,188 +1,222 @@
-# PROJET BIG DATA : Smart Home IoT Analysis
+# BIG DATA PROJECT: Smart Home IoT Analysis
 
-Bonjour ! 👋
-Ce fichier est le document central de mon projet. Il contient :
-1.  **L'explication simple** du projet (C'est quoi ? À quoi ça sert ?).
-2.  **Le Guide d'Installation** (Toutes les commandes pour lancer le projet).
-3.  **La Preuve de Fonctionnement** (Screenshots et explications techniques détaillées).
-4.  **La Conformité** (Preuve que j'ai respecté les consignes de l'Option A).
-
----
-
-# 1. 🎓 C'est quoi ce projet ? (Explication Simple)
-
-Imagine que nous voulons surveiller une "Maison Intelligente" (Smart Home) pour détecter des problèmes (comme une lumière oubliée ou une température anormale) en temps réel.
-
-Pour faire ça, nous avons construit une "usine de données" avec 3 acteurs :
-
-1.  **Le Producteur (Python)** : C'est comme des **capteurs virtuels** dans la maison. Il génère des faux événements (Température 25°C, Lumière Allumée...) et les envoie très vite.
-2.  **Kafka (Le Facteur)** : C'est le **tuyau de transport**. Il reçoit les messages des capteurs et les garde en sécurité en attendant qu'ils soient traités.
-3.  **Spark (Le Cerveau)** : C'est l'**analyseur**. Il lit les messages qui arrivent par le tuyau, calcule des statistiques (moyennes par minute) et surveille les anomalies pour nous alerter.
-
-**L'Intérêt du projet** :
-C'est de prouver qu'on sait gérer des "Données en Streaming" (qui n'arrêtent jamais d'arriver), exactement comme le font Uber, Netflix ou les banques aujourd'hui.
+This file is the central document of **our project**. It contains:
+1.  **Simple explanation** of the project (What is it? What purpose does it serve?).
+2.  **Execution Guide** (All commands to launch the project).
+3.  **Proof of Operation** (Screenshots and detailed technical explanations).
+4.  **Compliance** (Proof that **we respected** the guidelines for Option A).
 
 ---
 
-# 2. 💻 Guide d'Exécution : Commandes à copier-coller
+# 1. 🎓 What is this project? (Simple Explanation)
 
-Voici la liste exacte des commandes pour lancer et tester le projet toi-même.
+Imagine that we want to monitor a "Smart Home"  to detect problems (like a forgotten light or abnormal temperature) in real-time.
 
-## Étape 1 : Tout nettoyer (optionnel, pour repartir de zéro)
-Si tu veux être sûr que tout est propre :
+To do this, **we built** a "data factory" with 3 actors:
+
+1.  **The Producer (Python)**: It acts like **virtual sensors** in the house. It generates fake events (Temperature 25°C, Light On...) and sends them very quickly.
+2.  **Kafka (The Mailman)**: It is the **transport pipe**. It receives messages from sensors and keeps them safe while waiting for them to be processed.
+3.  **Spark (The Brain)**: It is the **analyzer**. It reads messages arriving through the pipe, calculates statistics (averages per minute), and monitors anomalies to alert us.
+
+**Project Interest**:
+It proves that we know how to handle "Streaming Data" (which never stops arriving), exactly as Uber, Netflix, or banks do today.
+
+---
+
+# 2. 💻 Execution Guide: Copy-Paste Commands
+
+Here is the exact list of commands to launch and test the project yourself.
+
+## Step 1: Clean everything (optional, to start from scratch)
+If you want to be sure everything is clean:
 ```powershell
 docker-compose down
-# Supprime les volumes (données) pour repartir à neuf
+# Removes volumes (data) to start fresh
 docker volume prune -f
 ```
 
-## Étape 2 : Lancer l'infrastructure (Docker)
-Ouvre un terminal (PowerShell ou CMD) à la racine du projet (`c:\bigdata\projetbigdata`).
+## Step 2: Launch the infrastructure (Docker)
+Open a terminal (PowerShell or CMD) at the project root (`c:\bigdata\projetbigdata`).
 ```powershell
 docker-compose up -d
 ```
-*Attends 30 secondes que tout démarre.*
+*Wait 30 seconds for everything to start.*
 
-Vérifie que c'est lancé :
+Verify that it is running:
 ```powershell
 docker ps
 ```
-*Tu dois voir 3 lignes : zookeeper, kafka, spark.*
+*You should see 3 lines: zookeeper, kafka, spark.*
 
-## Étape 3 : Créer le sujet de discussion (Topic Kafka)
-On dit à Kafka de créer le canal "home_sensors".
+## Step 3: Create the discussion subject (Kafka Topic)
+We tell Kafka to create the "home_sensors" channel.
 ```powershell
 docker exec kafka kafka-topics --create --topic home_sensors --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
 ```
 
-## Étape 4 : Lancer le Producteur (Les données)
-Ouvre un **DEUXIÈME** terminal.
-Active ton environnement Python et lance le script.
+## Step 4: Launch the Producer (The Data)
+Open a **SECOND** terminal.
+We secured the execution with a virtual environment.
 
 ```powershell
-# Active l'environnement virtuel
+# 1. Create the virtual environment (only once)
+python -m venv venv
+
+# 2. Activate the environment
 .\venv\Scripts\Activate
 
-# Lance le producteur (attendre 30 secondes apres l'execution de cette commande)
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Launch the producer (wait 30 seconds after execution of this command)
 python producer/sensor_producer.py
 ```
-*Laisse ce terminal ouvert ! Tu vas voir les messages défiler.*
+*Leave this terminal open! You will see messages scrolling.*
 
-## Étape 5 : Lancer l'Analyse Spark
-Ouvre un **TROISIÈME** terminal.
-On lance Spark à l'intérieur de Docker pour éviter les bugs Windows.
+## Step 5: Launch Spark Analysis
+Open a **THIRD** terminal.
+We launch Spark inside Docker to avoid Windows bugs.
 
 ```powershell
 docker exec spark /opt/spark/bin/spark-submit --conf spark.jars.ivy=/tmp/.ivy2 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 --master local[*] /home/spark_jobs/spark_streaming_analysis.py
 ```
-*Tu vas voir beaucoup de texte défiler, c'est normal. Au bout d'un moment, tu verras des tableaux s'afficher toutes les minutes.*
+*You will see a lot of text scrolling, this is normal. After a moment, you will see tables displayed every minute.*
 
-## Étape 6 : Vérifier les résultats
-Si tu veux voir si des anomalies ont été détectées, va voir dans ton dossier windows :
+## Step 6: Verify results
+If you want to see if anomalies were detected, go to your windows folder:
 `c:\bigdata\projetbigdata\data\output\anomalies`
-Tu y trouveras des fichiers CSV.
+You will find CSV files there.
 
 ---
 
-# 3. 📸 Explications des Preuves (Screenshots)
+# 3. 📸 Explanation of Proofs (Screenshots)
 
-Voici l'analyse technique de ce que vous voyez sur mes captures d'écran.
+Here is the technical analysis of what you see on **our screenshots**.
 
-## 🟢 SCREEN 1 : Le Terminal "Producer" (Génération de Données)
+## DOCKER DISPLAY TO HAVE: ![alt text](image-4.png)
+
+## 🟢 SCREEN 1: The "Producer" Terminal (Data Generation)
 ![alt text](image.png)
 
-**Titre : Simulation des Capteurs IOT en Temps Réel**
+**Title: Real-Time IoT Sensor Simulation**
 
-**Ce qu'on voit :**
-Un script Python qui génère et envoie des événements en continu, environ toutes les 2 secondes. Chaque ligne représente une lecture de capteur envoyée.
+**What we see:**
+A Python script generating and sending events continuously, about every 2 seconds. Each line represents a sensor reading sent.
 
-**Comment ça marche (La logique du code) :**
-Le script `sensor_producer.py` agit comme un simulateur de maison intelligente.
-1.  **L'Aléatoire** : À chaque exécution, il choisit aléatoirement :
-    -   Une **Pièce** parmi 4 : `living_room`, `bedroom`, `kitchen`, `bathroom`.
-    -   Un **Type de Capteur** parmi 4 : `temperature`, `humidity`, `presence`, `light`.
-2.  **Les Valeurs Réalistes** : Les données ne sont pas n'importe quoi, elles suivent des règles logiques définies dans le code :
-    -   *Température* : Entre 18°C et 28°C.
-    -   *Humidité* : Entre 30% et 70%.
-    -   *Présence/Lumière* : Binaire (0 ou 1).
-3.  **L'Envoi vers Kafka** : Une fois l'événement créé (format JSON), il est "poussé" instantanément vers le Topic Kafka `home_sensors` qui agit comme notre tuyau de transport de données.
+**How it works (Code logic):**
+The `sensor_producer.py` script acts as a smart home simulator.
+1.  **Randomness**: At each execution, it randomly chooses:
+    -   A **Room** among 4: `living_room`, `bedroom`, `kitchen`, `bathroom`.
+    -   A **Sensor Type** among 4: `temperature`, `humidity`, `presence`, `light`.
+2.  **Realistic Values**: The data is not random nonsense; it follows logical rules defined in the code:
+    -   *Temperature*: Between 18°C and 28°C.
+    -   *Humidity*: Between 30% and 70%.
+    -   *Presence/Light*: Binary (0 or 1).
+3.  **Sending to Kafka**: Once the event is created (JSON format), it is "pushed" instantly to the Kafka Topic `home_sensors` which acts as our data transport pipe.
 
-**Pourquoi ?**
-Cela prouve que notre système est capable d'ingérer des données dynamiques et non statiques, simulant un environnement réel imprévisible.
+**Why?**
+This proves that **our system** is capable of ingesting dynamic and non-static data, simulating an unpredictable real environment.
 
 ---
 
-## 🔵 SCREEN 2 : Le Terminal "Spark" (Traitement Batch)
+## 🔵 SCREEN 2: The "Spark" Terminal (Batch Processing)
 
 ![alt text](image-1.png)
 
-**Titre : Agrégation et Analyse en Streaming (Micro-Batchs)**
+**Title: Streaming Aggregation and Analysis (Micro-Batches)**
 
-**Ce qu'on voit :**
-Des tableaux ASCII générés par Spark qui se mettent à jour. Chaque tableau correspond à un "Batch" (un lot de traitement).
+**What we see:**
+ASCII tables generated by Spark updating. Each table corresponds to a "Batch" (a processing lot).
 
-**Comment ça marche (La logique du code) :**
-Spark Streaming écoute le Topic Kafka et ne traite pas les messages un par un, mais par paquets (micro-batchs).
-1.  **Le Fenêtrage (Windowing)** : Le code utilise une fonction `window`. Cela signifie qu'il regroupe toutes les données reçues durant une période précise (ex: 30 secondes).
-2.  **L'Agrégation** : Pour chaque fenêtre et chaque pièce, il calcule des statistiques :
-    -   `avg_value` : La moyenne (ex: température moyenne).
-    -   `min/max` : Les pics de valeurs (minimum et maximum).
-    -   `count` : Le nombre de mesures reçues.
-3.  **Mode "Update"** : Le tableau que tu vois n'affiche que les lignes qui ont été *modifiées* lors du dernier micro-batch. C'est pour cela que la taille du tableau change constamment : si seuls les capteurs de la cuisine ont envoyé des données cette seconde-ci, seule la ligne "kitchen" apparaît.
+**How it works (Code logic):**
+Spark Streaming listens to the Kafka Topic and does not process messages one by one, but by packets (micro-batches).
+1.  **Windowing**: The code uses a `window` function. This means it groups all data received during a precise period (**1 minute**).
+2.  **Aggregation**: For each window and each room, it calculates statistics:
+    -   `avg_value`: The average (e.g., average temperature).
+    -   `min/max`: Value peaks (minimum and maximum).
+    -   `count`: The number of readings received.
+3.  **"Update" Mode**: The table you see only displays lines that were *modified* during the last micro-batch. This is why the table size changes constantly: if only kitchen sensors sent data this second, only the "kitchen" line appears.
 
-**Pourquoi ?**
-Cela démontre la capacité de Spark à transformer des données brutes chaotiques en informations statistiques structurées et utiles, et ce, en quasi temps réel.
-
----
-
-## 🔴 SCREEN 3 : Les Fichiers "Anomalies" (Alerting)
-
-*Exemple d'anomalie : 2025-12-19T13:48:30.000Z,2025-12-19T13:49:00.000Z,kitchen,0,0,,59.55*
-
-**Titre : Détection d'Incidents et Persistance des Données**
-
-**Ce qu'on voit :**
-L'explorateur de fichiers montrant des fichiers CSV dans le dossier `data/output/anomalies`.
-
-**LA LOGIQUE DES ANOMALIES (QUAND EST-CE UNE ANOMALIE ?) :**
-Ce fichier n'est pas juste une copie des données, c'est un **Rapport de Surveillance**.
-Dans le code Spark, nous avons défini des règles précises pour surveiller la sécurité de la maison :
-
-1.  **Agrégation "Lights On"** :
-    -   Le code regarde tous les messages de type "light".
-    -   Il compte combien de fois la valeur était "1" (Allumé).
-    -   *Logique :* `sum(case when sensor_type='light' and value=1 then 1 else 0)`
-2.  **Agrégation "Presence Detected"** :
-    -   Il fait la même chose pour les capteurs de présence.
-3.  **La Détection** :
-    -   Le fichier CSV contient ces sommes pour chaque fenêtre de 30 secondes.
-    -   **L'Anomalie humaine** : C'est en lisant ce fichier qu'on détecte les problèmes. Par exemple, si dans le CSV on voit `lights_on = 5` et `presence_detected = 0` pour la même pièce, **C'EST UNE ANOMALIE** (Lumière allumée sans personne !).
-
-**Pourquoi écrire sur le disque ?**
-Contrairement aux stats qui s'affichent juste à l'écran, ces données sont critiques. On utilise un "File Sink" (CSV) pour les stocker durablement. Cela permettrait, dans un vrai projet, d'envoyer ces fichiers à un système d'alarme.
+**Why?**
+This demonstrates Spark's capability to transform chaotic raw data into structured and useful statistical information, in near real-time.
 
 ---
 
-# 4. ✅ Conformité avec les Consignes (Option A)
+## 🔴 SCREEN 3: "Anomalies" Files (Alerting)
 
-Je certifie que ce projet respecte à 100% l'Option A :
+*Anomaly example: 2025-12-19T13:48:30.000Z,2025-12-19T13:49:00.000Z,kitchen,0,0,,59.55*
+*Anomaly example: 2025-12-19T14:20:30.000Z,2025-12-19T14:21:00.000Z,kitchen,1,0,23.3,39.3*
 
-1.  **Utilisation de Docker** :
-    -   ✅ `docker-compose.yml` utilisé pour lancer Zookeeper, Kafka et Spark.
-    -   Preuve : Voir Screen 1 (Terminal Docker).
+![alt text](image-3.png)
 
-2.  **Streaming de Données** :
-    -   ✅ Script `producer/sensor_producer.py` simulant des capteurs IoT.
-    -   Preuve : Voir Screen 1 (Terminal Producer).
-    -   ✅ Topic Kafka `home_sensors` créé et utilisé.
+**Title: Incident Detection and Data Persistence**
 
-3.  **Traitement Spark (Pyspark)** :
-    -   ✅ Script `spark/spark_streaming_analysis.py`.
-    -   ✅ Utilisation de `window()` pour les fenêtres temporelles.
-    -   ✅ Calcul d'agrégats (`avg`, `min`, `max`) sur les capteurs.
-    -   Preuve : Voir Screen 2 (Tableaux Spark).
+**What we see:**
+File explorer showing CSV files in the `data/output/anomalies` folder.
 
-4.  **Détection d'Anomalies / Stockage** :
-    -   ✅ Logique d'agrégation conditionnelle pour `lights_on` et `presence`.
-    -   ✅ Écriture des résultats au format CSV dans `data/output/`.
-    -   Preuve : Voir Screen 3 (Fichiers Anomalies).
+**WHY ARE FILE NAMES WEIRD (`part-000...`)?**
+It is an absolute standard in **Distributed Big Data**. Spark is designed so that 1000 servers write at the same time without overwriting each other.
+*   It cannot name the file "14h30.csv" otherwise multiple servers would fight for this name.
+*   It therefore uses unique identifiers (`UUID`).
+*   **Reading tip**: Do not trust the name. Sort your folder by **"Date modified"** to see the latest ones first, or open the file: the exact time is the first column (`window_start`).
+
+**THE ANOMALY LOGIC (WHEN IS IT AN ANOMALY?):**
+This file is not just a copy of data, it is a **Surveillance Report**.
+In the Spark code, **we defined** precise rules to monitor home security:
+
+1.  **"Lights On" Aggregation**:
+    -   The code looks at all "light" type messages.
+    -   It counts how many times the value was "1" (On).
+    -   *Logic:* `sum(case when sensor_type='light' and value=1 then 1 else 0)`
+2.  **"Presence Detected" Aggregation**:
+    -   It does the same for presence sensors.
+3.  **Detection**:
+    -   The CSV file contains these sums for each 30-second window.
+    -   **Human Anomaly**: It is by reading this file that we detect problems. For example, if in the CSV we see `lights_on = 5` and `presence_detected = 0` for the same room, **IT IS AN ANOMALY** (Light on without anyone!).
+
+**Why write to disk?**
+Unlike stats that just display on screen, these data are critical. We use a "File Sink" (CSV) to store them durably. This would allow, in a real project, sending these files to an alarm system.
+
+---
+
+# 4. ✅ Compliance with Guidelines (Option A)
+
+We certify that this project respects Option A at 100%:
+
+1.  **Docker Usage**:
+    -   ✅ `docker-compose.yml` used to launch Zookeeper, Kafka, and Spark.
+    -   Proof: See Screen 1 (Docker Terminal).
+
+2.  **Data Streaming**:
+    -   ✅ `producer/sensor_producer.py` script simulating IoT sensors.
+    -   Proof: See Screen 1 (Producer Terminal).
+    -   ✅ Kafka Topic `home_sensors` created and used.
+
+3.  **Spark Processing (Pyspark)**:
+    -   ✅ `spark/spark_streaming_analysis.py` script.
+    -   ✅ Use of `window()` for time windows.
+    -   ✅ Calculation of aggregates (`avg`, `min`, `max`) on sensors.
+    -   Proof: See Screen 2 (Spark Tables).
+
+4.  **Anomaly Detection / Storage**:
+    -   ✅ Conditional aggregation logic for `lights_on` and `presence`.
+    -   ✅ Writing results in CSV format in `data/output/`.
+    -   Proof: See Screen 3 (Anomaly Files).
+
+---
+
+## 🛠️ Our Setup Notes (Challenges & Solutions)
+*   **Challenge**: Spark was crashing with an "Ivy FileNotFound" error in Docker.
+*   **Solution**: **We added** the option `--conf spark.jars.ivy=/tmp/.ivy2` to force the use of a writable folder.
+*   **Challenge**: The producer couldn't find Kafka.
+*   **Solution**: **We configured** `KAFKA_ADVERTISED_LISTENERS` with `localhost` for our Windows PC and `kafka:29092` for Spark (internal Docker network).
+*   **Challenge**: Anomalies were not appearing.
+*   **Solution**: **We adjusted** the "Watermark" to 0 seconds to have immediate writing without waiting for the safety window end.
+
+### ❓ Technical Question: "Do we need winutils.exe?"
+**Non.** It is often a headache on Windows, but here, thanks to **Docker**, Spark runs in a **Linux** container. It therefore does not need this Windows patch (`winutils.exe` or `hadoop.dll`). It is one of the great advantages of our containerized architecture: it is clean and portable.
+
+---
+**Authors:** Big Data Students
+**Date:** 19/12/2025
+**Technos:** Python, Kafka, Spark Structured Streaming, Docker.
